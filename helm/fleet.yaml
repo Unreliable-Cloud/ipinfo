@@ -1,0 +1,26 @@
+defaultNamespace: ipinfo
+
+helm:
+  releaseName: ipinfo
+
+dependsOn:
+  - name: external-dns-helm
+  - name: cert-manager-issuers-cert-manager-issuers
+  - name: argo-rollouts-helm
+  - name: nginx-ingress-helm
+  - name: sealed-secrets-helm
+
+targetCustomizations:
+- name: k8s-us-east
+  helm:
+    values:
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-dns01-aws
+      env:
+      - name: GEOIP_APP_ENDPOINT
+        value: "https://ipinfo.k8s.unreliable.cloud"
+  clusterSelector:
+    matchLabels:
+      clusterName: k8s-us-east
+      mesh: istio

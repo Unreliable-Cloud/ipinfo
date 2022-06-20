@@ -1,0 +1,34 @@
+---
+{{- if .Values.istio.virtualService.enabled -}}
+{{- $fullName := include "ipinfo.fullname" . -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+ name: {{ $fullName }}
+spec:
+ hosts:
+ - {{ .Values.istio.gateway.hostName  }}
+{{- if .Values.istio.gateway.enabled -}}
+ gateways:
+ - {{ .Release.Namespace }}/{{ $fullName }}
+ {{- end }}
+ hosts:
+ - {{ include "ipinfo.fullname" . }}.{{ .Release.Namespace}}.svc.cluster.local
+ http:
+ - name: {{ $fullName }}-primary
+   route:
+   - destination:
+       host: {{ $fullName }}
+       subset: stable
+     weight: 100
+   - destination:
+       host: {{ $fullName }}
+       subset: canary
+     weight: 0
+   {{- if .Values.istio.virtualService.retries }}
+   {{- with .Values.istio.virtualService.retries }}
+   retries:
+   {{- toYaml . | nindent 5 }}
+   {{- end }}
+   {{- end }}
+{{- end }}

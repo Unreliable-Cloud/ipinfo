@@ -1,0 +1,140 @@
+# Default values for ipinfo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: docker.io/supermasita/geoip-flask
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+env:
+- name: GEOIP_APP_ENDPOINT
+  value: "https://ipinfo.k8s.unreliable.cloud"
+
+labels:
+  app: ipinfo
+  version: latest
+  sidecar.istio.io/inject: "true"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8888
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-dns01-aws
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/upstream-vhost: ipinfo.ipinfo.svc.cluster.local
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+  hosts:
+    - host: ipinfo.k8s.unreliable.cloud
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+  - secretName: ipinfo-tls
+    hosts:
+      - ipinfo.k8s.unreliable.cloud
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+       - type: Pods
+         value: 1
+         periodSeconds: 180
+    scaleUp:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+
+topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: kubernetes.io/hostname
+  whenUnsatisfiable: ScheduleAnyway
+  labelSelector:
+    matchLabels:
+      app: ipinfo
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+istio:
+  gateway:
+    enabled: false
+    hostName: ipinfo.k8s.unreliable.cloud
+  virtualService:
+    enabled: true
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: connect-failure,refused-stream,gateway-error
+    trafficPolicy:
+      connectionPool:
+        http:
+          h2UpgradePolicy: UPGRADE
+          maxRequestsPerConnection: 200
+      outlierDetection:
+        consecutive5xxErrors: 30
+        interval: 5m
+        baseEjectionTime: 5m
+    envoyFilter:
+     enabled: true
+     maxRequests: 400
+     tokenMultiplier: 1
+     interval: "1s"
