@@ -126,13 +126,13 @@ istio:
       connectionPool:
         http:
           h2UpgradePolicy: UPGRADE
-          maxRequestsPerConnection: 200
+          maxRequestsPerConnection: 100
       outlierDetection:
         consecutive5xxErrors: 30
         interval: 5m
         baseEjectionTime: 5m
     envoyFilter:
      enabled: true
-     maxRequests: 400
+     maxRequests: 110
      tokenMultiplier: 1
      interval: "1s"
