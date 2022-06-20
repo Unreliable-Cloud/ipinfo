@@ -23,9 +23,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-env:
-- name: GEOIP_APP_ENDPOINT
-  value: "https://ipinfo.k8s.unreliable.cloud"
+env: []
 
 labels:
   app: ipinfo
