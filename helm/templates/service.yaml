@@ -4,6 +4,10 @@ metadata:
   name: {{ include "ipinfo.fullname" . }}
   labels:
     {{- include "ipinfo.labels" . | nindent 4 }}
+  {{- if .Values.istio.virtualService.enabled }}
+  annotations:
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
