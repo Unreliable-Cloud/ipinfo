@@ -28,7 +28,7 @@ env: []
 labels:
   app: ipinfo
   version: latest
-  sidecar.istio.io/inject: "false"
+  sidecar.istio.io/inject: "true"
 
 podAnnotations: {}
 
@@ -49,7 +49,7 @@ service:
 
 ingress:
   enabled: true
-  className: "nginx-nomesh"
+  className: "nginx"
   annotations:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-dns01-aws
@@ -73,10 +73,10 @@ resources:
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
     cpu: 300m
-    memory: 500Mi
+    memory: 300Mi
   requests:
     cpu: 100m
-    memory: 300Mi
+    memory: 200Mi
 
 autoscaling:
   enabled: true
@@ -104,7 +104,7 @@ istio:
     enabled: false
     hostName: ipinfo.k8s.unreliable.cloud
   virtualService:
-    enabled: false
+    enabled: true
     retries:
       attempts: 3
       perTryTimeout: 2s
@@ -119,7 +119,7 @@ istio:
         interval: 5m
         baseEjectionTime: 5m
     envoyFilter:
-     enabled: false
+     enabled: true
      maxRequests: 110
      tokenMultiplier: 1
      interval: "1s"

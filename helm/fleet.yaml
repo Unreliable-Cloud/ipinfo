@@ -16,7 +16,7 @@ dependsOn:
   - name: external-dns-helm
   - name: cert-manager-issuers-cert-manager-issuers
   - name: argo-rollouts-helm
-  - name: nginx-nomesh-helm
+  - name: nginx-ingress-helm
   - name: sealed-secrets-helm
 
 targetCustomizations:
