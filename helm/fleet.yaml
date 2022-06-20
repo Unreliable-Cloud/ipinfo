@@ -3,6 +3,15 @@ defaultNamespace: ipinfo
 helm:
   releaseName: ipinfo
 
+diff:
+  comparePatches:
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    name: ipinfo
+    namespace: ipinfo
+    jsonPointers:
+    - "/spec/metrics"
+
 dependsOn:
   - name: external-dns-helm
   - name: cert-manager-issuers-cert-manager-issuers
