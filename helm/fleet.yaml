@@ -16,7 +16,7 @@ dependsOn:
   - name: external-dns-helm
   - name: cert-manager-issuers-cert-manager-issuers
   - name: argo-rollouts-helm
-  - name: nginx-ingress-helm
+  - name: nginx-nomesh-helm
   - name: sealed-secrets-helm
 
 targetCustomizations:
@@ -32,4 +32,3 @@ targetCustomizations:
   clusterSelector:
     matchLabels:
       clusterName: k8s-us-east
-      mesh: istio
