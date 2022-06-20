@@ -24,7 +24,6 @@ targetCustomizations:
   helm:
     values:
       ingress:
-        className: "nginx-nomesh"
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-dns01-aws
       env:
